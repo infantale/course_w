@@ -23,8 +23,6 @@ export default {
           }
         )
       }
-      // Переделать под VUE 3 и разобрать код криптономикона
-
     }
   },
   created: function () {

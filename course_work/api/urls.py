@@ -13,8 +13,8 @@ urlpatterns = [
     path('bbs/<int:pk>/', BbDetailView.as_view()),
     path('outfit/<int:pk>/like/', PostLikeAPIToggle.as_view(), name='like-api-toggle'),
     path('outfits_page/', page_outfits, name='page_outfits'),
-    path('outfits/', get_outfits, name='get_outfits'),
-    path('bbs/', bbs),
+    path('outfits/', UserOutfitsView.as_view(), name='get_outfits'),
+    path('bbs/', BBSView.as_view()),
 ]
 
 # urlpatterns += router.urls

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
     'core.apps.CoreConfig',
     'bootstrap4',
     'django_cleanup',
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -124,6 +126,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -148,6 +152,10 @@ THUMBNAIL_BASEDIR = 'thumbnails'
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'/api/.*$'
+
+INTERNAL_IPS = [
+    '127.0.0.1:8000',
+]
 
 # try:
 #     from .local_settings import *

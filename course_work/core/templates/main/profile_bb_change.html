@@ -10,7 +10,6 @@
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {% bootstrap_form form layout='horizontal' %}
-    {% bootstrap_formset formset layout='horizontal' %}
     {% buttons submit='Изменить' %}{% endbuttons %}
   </form>
 {% endblock %}

@@ -7,9 +7,9 @@
 {% block title %}{{ category }}{% endblock %}
 
 {% block content %}
-{% if bbs %}
+{% if bb_list %}
 <div class="services__wrap">
-  {% for bb in bbs %}
+  {% for bb in bb_list %}
   <div class="neumorphismrubric__box">
     {% url 'core:detail' category_pk=category.pk pk=bb.pk as url %}
 
@@ -34,8 +34,8 @@
 
 
 
-    {% for i in page.paginator.page_range %}
-      {% if page.number == i %}
+    {% for i in page_obj.paginator.page_range %}
+      {% if page_obj.number == i %}
       <li class="page-item active" aria-current="page">
         <a class="page-link" href="?page={{ i }}">{{ i }}</a>
       </li>

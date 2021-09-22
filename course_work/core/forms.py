@@ -12,7 +12,7 @@ class ChangeUserInfoForm(forms.ModelForm):
         fields = ('username', 'first_name', 'last_name')
 
 
-class RegisterUserFrom(forms.ModelForm):
+class RegisterUserForm(forms.ModelForm):
     password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput)
 

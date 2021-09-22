@@ -22,23 +22,3 @@ class BbDetailSerializer(serializers.ModelSerializer):
         model = Bb
         fields = ('id', 'title', 'content', 'price', 'created_at', 'contacts', \
                     'image')
-
-
-# class UserOutfitRelationSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = UserOutfitRelation
-#         fields = ('outfit', 'like', 'rate')
-
-# class OutfitSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Outfit
-#         fields = (
-#             'id',
-#             'title',
-#             'total_likes',
-#         )
-#
-#     def get_is_fan(self, obj) -> bool:
-#         # Проверяет, лайкнул ли request.user ауифми obj
-#         user = self.context.get('request').user
-#         return likes_services.is_fan(obj, user)

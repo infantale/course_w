@@ -1,10 +1,9 @@
 from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.auth.models import AbstractUser
+from django.urls import reverse
 
 from .utilities import get_timestamp_path
-# from likes.models import Like
-# Create your models here.
 
 class AdvUser(AbstractUser):
     is_activated = models.BooleanField(default=True, db_index=True, \
@@ -39,9 +38,6 @@ class SuperCategoryManager(models.Manager):
 
 class SuperCategory(Category):
     objects = SuperCategoryManager()
-
-    # def _get_child(self):
-    #     return self.
 
     def __str__(self):
         return self.name
@@ -97,6 +93,9 @@ class Bb(models.Model):
     #         ai.delete()
     #     super().delete(*args, **kwargs)
 
+    def get_absolute_url(self):
+        return reverse('core:detail', kwargs={'pk': self.pk, 'category_pk': self.category.pk})
+
     class Meta:
         verbose_name_plural = 'Объявления'
         verbose_name = 'Объявление'
@@ -110,24 +109,3 @@ class AddiionalImage(models.Model):
     class Meta:
         verbose_name_plural = 'Дополнительные иллюстрации'
         verbose_name = 'Дополнительная иллюстрация'
-
-
-# class Outfit(models.Model):
-#     author = models.ForeignKey(AdvUser, on_delete=models.CASCADE, \
-#                                 verbose_name='Автор образа')
-#     title = models.CharField(max_length=40, default=0, verbose_name='Образ')
-#     price = models.FloatField(default=0, verbose_name='Цена')
-#     image = models.ImageField(blank=False, upload_to=get_timestamp_path, \
-#                                 verbose_name='Изображение')
-#     likes = GenericRelation(Like)
-#
-#     def __str__(self):
-#         return self.title
-#
-#     @property
-#     def total_likes(self):
-#         return self.likes.count()
-#
-#     class Meta:
-#         verbose_name_plural = 'Образы'
-#         verbose_name = 'Образ'

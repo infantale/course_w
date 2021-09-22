@@ -1,23 +1,22 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy
-from django.http import HttpResponse, Http404
+from django.urls import reverse_lazy, reverse
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.template import TemplateDoesNotExist
 from django.template.loader import get_template
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import UpdateView, CreateView, DeleteView
+from django.views.generic import DetailView, ListView, UpdateView, DeleteView, CreateView
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView, LogoutView
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.paginator import Paginator
-from django.db.models import Q
 
 from api.models import Outfit
-from .forms import ChangeUserInfoForm, RegisterUserFrom, BbForm, AIFormSet, OutfitForm
+from .forms import ChangeUserInfoForm, RegisterUserForm, BbForm, OutfitForm
 from .models import AdvUser, Bb, SubCategory
-# Create your views here.
+
+import datetime
+
 
 def index(request):
     bbs = Bb.objects.filter(is_active=True)[:10]
@@ -38,129 +37,92 @@ def other_page(request, page):
     return HttpResponse(template.render(request=request))
 
 
-def detail(request, category_pk, pk):
-    bb = get_object_or_404(Bb, pk=pk)
-    user_id = request.user.pk
-    context = {'bb': bb, 'user_id': user_id}
-    return render(request, 'main/detail.html', context)
+class BBDetailView(DetailView):
+    """Вывод полной информации об объявлении"""
+    context_object_name = 'bb'
+    model = Bb
+    template_name = 'main/detail.html'
 
 
-def by_category(request, pk):
-    category = get_object_or_404(SubCategory, pk=pk)
-    bbs = Bb.objects.filter(is_active=True, category=pk)
-    paginator = Paginator(bbs, 2)
-    if 'page' in request.GET:
-        page_num = request.GET['page']
-    else:
-        page_num = 1
-    page = paginator.get_page(page_num)
-    context = {'category': category, 'page': page, 'bbs': page.object_list}
+class ByCategoryView(ListView):
+    """Вывод объявлений по категориям"""
+    model = Bb
+    paginate_by = 2
+    template_name = 'main/by_rubric.html'
 
-    return render(request, 'main/by_rubric.html', context)
+    def get_queryset(self):
+        queryset = Bb.objects.filter(is_active=True, category=self.kwargs['pk'])
+        return queryset
 
 
-@login_required
-def profile(request):
-    bbs = Bb.objects.filter(author=request.user.pk)
-    outfits = Outfit.objects.filter(author=request.user.pk)
-    context = {'bbs': bbs, 'outfits': outfits}
-    return render(request, 'main/profile.html', context)
+class ProfileView(LoginRequiredMixin, ListView):
+    """Показать страницу профиля пользователя"""
+    model = Bb
+    template_name = 'main/profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['bbs'] = Bb.objects.filter(author=self.request.user.pk)
+        context['outfits'] = Outfit.objects.filter(author=self.request.user.pk)
+        return context
 
 
-@login_required
-def profile_bb_detail(request, pk, *args):
-    bb = get_object_or_404(Bb, pk=pk)
-    ais = '' # bb.additionalimage_set.all()
-    context = {'bb': bb, 'ais': ais}
-    return render(request, 'main/profile_bb_detail.html', context)
+# Не работает с form_class
+class BBAddView(SuccessMessageMixin, LoginRequiredMixin, CreateView):
+    """Создание объявления"""
+    model = Bb
+    template_name = 'main/profile_bb_add.html'
+    fields = ['category', 'title', 'content', 'price', \
+              'contacts', 'image', 'is_active']
+    success_message = 'Объявление успешно добавлено'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        form.instance.created_at = datetime.datetime.now()
+        return super().form_valid(form)
 
 
-@login_required
-def profile_bb_add(request):
-    if request.method == 'POST':
-        form = BbForm(request.POST, request.FILES)
-        if form.is_valid():
-            bb = form.save()
-            formset = AIFormSet(request.POST, request.FILES, instance=bb)
-            if formset.is_valid():
-                formset.save()
-                messages.add_message(request, messages.SUCCESS, 'Объявление добавлено')
-                return redirect('core:profile')
-    else:
-        form = BbForm(initial={'author': request.user.pk})
-        formset = AIFormSet()
-    context = {'form': form, 'formset': formset}
-    return render(request, 'main/profile_bb_add.html', context)
+class BBEditView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
+    """Редактирование объявления"""
+    model = Bb
+    template_name = 'main/profile_bb_change.html'
+    form_class = BbForm
+    success_message = 'Объявление изменено'
 
 
-def profile_bb_change(request, pk):
-    bb = get_object_or_404(Bb, pk=pk)
-    if request.method == 'POST':
-        form = BbForm(request.POST, request.FILES, instance=bb)
-        if form.is_valid():
-            bb = form.save()
-            formset = AIFormSet(request.POST, request.FILES, instance=bb)
-            if formset.is_valid():
-                formset.save()
-                messages.add_message(request, messages.SUCCESS, 'Объявление исправлено')
-                return redirect('core:profile')
-    else:
-        form = BbForm(instance=bb)
-        formset = AIFormSet(instance=bb)
-    context = {'form': form, 'formset': formset}
-    return render(request, 'main/profile_bb_change.html', context)
+class BBDeleteView(LoginRequiredMixin, DeleteView):
+    """Удаление объявления"""
+    model = Bb
+    success_url = reverse_lazy('core:profile')
+    template_name = 'main/profile_bb_delete.html'
 
 
-@login_required
-def profile_bb_delete(request, pk):
-    bb = get_object_or_404(Bb, pk=pk)
-    if request.method == 'POST':
-        bb.delete()
-        messages.add_message(request, messages.SUCCESS, 'Объявление удалено')
-        return redirect('core:profile')
-    else:
-        context = {'bb': bb}
-        return render(request, 'main/profile_bb_delete.html', context)
+# Не работает c form_class
+class OutfitAddView(SuccessMessageMixin, LoginRequiredMixin, CreateView):
+    """Создание образа"""
+    model = Outfit
+    template_name = 'main/profile_outfit_add.html'
+    fields = ['title', 'price', 'image']
+    success_url = reverse_lazy('core:profile')
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
 
 
-@login_required
-def profile_outfit_add(request):
-    if request.method == 'GET':
-        form = OutfitForm(initial={'author': request.user.pk})
-    else:
-        form = OutfitForm(request.POST, request.FILES)
-        if form.is_valid():
-            outf = form.save()
-            messages.add_message(request, messages.SUCCESS, 'Образ добавлен')
-            return redirect('core:profile')
-    context = {'form': form}
-    return render(request, 'main/profile_outfit_add.html', context)
-
-@login_required
-def profile_outfit_change(request, pk):
-    outfit = get_object_or_404(Outfit, pk=pk)
-    if request.method == 'GET':
-        form = OutfitForm(instance=outfit)
-    else:
-        form = OutfitForm(request.POST, request.FILES, instance=outfit)
-        if form.is_valid():
-            if form.has_changed():
-                form.save()
-                messages.add_message(request, messages.SUCCESS, 'Образ изменён')
-                return redirect('core:profile')
-    context = {'form': form}
-    return render(request, 'main/profile_outfit_change.html', context)
+class OutfitEditView(LoginRequiredMixin, UpdateView):
+    """Редактирование образа"""
+    model = Outfit
+    template_name = 'main/profile_outfit_change.html'
+    form_class = OutfitForm
+    success_message = 'Образ изменен'
 
 
-@login_required
-def profile_outfit_delete(request, pk):
-    outfit = get_object_or_404(Outfit, pk=pk)
-    if request.method == 'GET':
-        return render(request, 'main/profile_outfit_delete.html', context={'outfit': outfit})
-    else:
-        outfit.delete()
-        messages.add_message(request, messages.SUCCESS, 'Образ удалён')
-        return redirect('core:profile')
+class OutfitDeleteView(LoginRequiredMixin, DeleteView):
+    """Удаление образа"""
+    model = Outfit
+    success_url = reverse_lazy('core:profile')
+    template_name = 'main/profile_outfit_delete.html'
 
 
 class TSLoginView(LoginView):
@@ -194,7 +156,7 @@ class ChangeUserInfoView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
 class RegisterUserView(CreateView):
     model = AdvUser
     template_name = 'main/register_user.html'
-    form_class = RegisterUserFrom
+    form_class = RegisterUserForm
     success_url = reverse_lazy('core:register_done')
 
 
