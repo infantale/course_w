@@ -13,28 +13,24 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-import debug_toolbar
 
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.staticfiles.views import serve
 from django.views.decorators.cache import never_cache
 
 from django.views.static import serve
 from django.conf.urls import url
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
-    path('', include('core.urls')),
-    path('__debug__/', include(debug_toolbar.urls)),
-
-    url(r'^media/(?P<path>.*)$', serve,{'document_root':       settings.MEDIA_ROOT}),
-    url(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
+    path("admin/", admin.site.urls),
+    path("api/", include("api.urls")),
+    path("core/", include("core.urls")),
+    url(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}),
+    url(r"^static/(?P<path>.*)$", serve, {"document_root": settings.STATIC_ROOT}),
 ]
 
 if settings.DEBUG:
-    urlpatterns.append(path('static/<path:path>', never_cache(serve)))
+    urlpatterns.append(path("static/<path:path>", never_cache(serve)))
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -16,71 +16,83 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-o9yxpqdxe=4*pto8fy*lfr%!=o^qxx)!-7ku7rr4oye2qz$b(%'
+SECRET_KEY = "django-insecure-o9yxpqdxe=4*pto8fy*lfr%!=o^qxx)!-7ku7rr4oye2qz$b(%"
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'theshopsaimon.herokuapp.com']
+ALLOWED_HOSTS = ["127.0.0.1", "theshopsaimon.herokuapp.com"]
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'shop.data',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "shop.data",
     }
 }
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'debug_toolbar',
-    'core.apps.CoreConfig',
-    'bootstrap4',
-    'django_cleanup',
-    'easy_thumbnails',
-    'rest_framework',
-    'corsheaders',
-    'api.apps.ApiConfig',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django_filters",
+    "core.apps.CoreConfig",
+    "bootstrap4",
+    "django_cleanup",
+    "easy_thumbnails",
+    "rest_framework",
+    "corsheaders",
+    "simple_history",
+    "api.apps.ApiConfig",
+    "import_export",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",
 ]
 
-ROOT_URLCONF = 'course_work.urls'
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": 1,
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+}
+
+ROOT_URLCONF = "course_work.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'core.middlewares.tshop_context_processor',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "core.middlewares.tshop_context_processor",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'course_work.wsgi.application'
+WSGI_APPLICATION = "course_work.wsgi.application"
 
 
 # Database
@@ -90,20 +102,20 @@ WSGI_APPLICATION = 'course_work.wsgi.application'
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
-AUTH_USER_MODEL = 'core.AdvUser'
+AUTH_USER_MODEL = "core.AdvUser"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -111,9 +123,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'ru'
+LANGUAGE_CODE = "ru"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -125,36 +137,36 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEADIA_URL = '/media'
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEADIA_URL = "/media"
 
-ADMINS = ['zinchieko02@mail.ru']
+ADMINS = ["zinchieko02@mail.ru"]
 
 THUMBNAIL_ALIASES = {
-    '': {
-        'default': {
-            'size': (86, 96),
-            'crop': 'scale',
+    "": {
+        "default": {
+            "size": (86, 96),
+            "crop": "scale",
         }
     }
 }
-THUMBNAIL_BASEDIR = 'thumbnails'
+THUMBNAIL_BASEDIR = "thumbnails"
 
 
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_URLS_REGEX = r'/api/.*$'
+CORS_URLS_REGEX = r"/api/.*$"
 
 INTERNAL_IPS = [
-    '127.0.0.1:8000',
+    "127.0.0.1:8000",
 ]
 
 # try:

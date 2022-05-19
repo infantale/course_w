@@ -1,20 +1,22 @@
-from django.urls import path
-from rest_framework.routers import SimpleRouter
+from django.conf.urls import url
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
-# from .viewsets import OutfitViewSet
 from .views import *
 
-app_name = 'api'
+app_name = "api"
 # Создаём Router и регистрируем ViewSet
-router = SimpleRouter()
-# router.register(r'outfit_relation', UserOutfitsRelationView)
+router = DefaultRouter()
+router.register(r"bbs", BbsViewSet)
+router.register(r"outfits", OutfitsViewSet)
+router.register(r"users", UsersViewSet)
+# router.register(r'userOutfits', UsersViewSet)
 
 urlpatterns = [
-    path('bbs/<int:pk>/', BbDetailView.as_view()),
-    path('outfit/<int:pk>/like/', PostLikeAPIToggle.as_view(), name='like-api-toggle'),
-    path('outfits_page/', page_outfits, name='page_outfits'),
-    path('outfits/', UserOutfitsView.as_view(), name='get_outfits'),
-    path('bbs/', BBSView.as_view()),
+    url("", include(router.urls)),
+    # path('bbs/<int:pk>/', BbDetailView.as_view()),
+    path("outfit/<int:pk>/like/", PostLikeAPIToggle.as_view(), name="like-api-toggle"),
+    path("outfits_page/", page_outfits, name="page_outfits"),
 ]
 
 # urlpatterns += router.urls
