@@ -23,6 +23,8 @@ from django.views.decorators.cache import never_cache
 from django.views.static import serve
 from django.conf.urls import url
 
+from .yasg import urlpatterns as yasg_urlpatterns
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("api.urls")),
@@ -30,6 +32,8 @@ urlpatterns = [
     url(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}),
     url(r"^static/(?P<path>.*)$", serve, {"document_root": settings.STATIC_ROOT}),
 ]
+
+urlpatterns += yasg_urlpatterns
 
 if settings.DEBUG:
     urlpatterns.append(path("static/<path:path>", never_cache(serve)))

@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "simple_history",
     "api.apps.ApiConfig",
     "import_export",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
